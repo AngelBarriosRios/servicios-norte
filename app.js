@@ -23,24 +23,20 @@ app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true })); // ¡PARA FORMULARIOS! (DEBE IR ANTES DE LAS RUTAS)
 app.use(express.json());   
 
-
-
-
+// CONFIGURACIÓN CSP UNIFICADA - Permite imágenes de Unsplash e iStock
 app.use((req, res, next) => {
-    // Solo aplicar CSP en producción o desarrollo (ajusta según necesites)
     res.setHeader(
         'Content-Security-Policy',
-        "default-src 'self'; " +                       // Permitir recursos del mismo origen
-        "connect-src 'self' http://localhost:5500; " + // Permitir conexiones
-        "form-action 'self'; " +                        // Permitir envío de formularios
+        "default-src 'self'; " +                          
+        "connect-src 'self' http://localhost:5500; " +    
+        "form-action 'self'; " +                           
         "font-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; " +
         "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; " +
-        "script-src 'self' https://cdnjs.cloudflare.com; " + // Para JavaScript si lo necesitas
-        "img-src 'self' data:;"                           // Para imágenes
+        "script-src 'self' https://cdnjs.cloudflare.com; " + 
+        "img-src 'self' data: https://images.unsplash.com https://media.istockphoto.com;"
     );
     next();
 });
-
 
 // RUTAS DE PÁGINAS ESTÁTICAS
 app.get('/', (req, res) => {
