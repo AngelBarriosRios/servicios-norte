@@ -1,443 +1,286 @@
-/* 
-MÓDULO 1: CLASE PRINCIPAL DEL SLIDER
+/**
+ * HeroSlider - Slider principal para la página de inicio
+ * Versión: 2.0
+ */
 
-Encapsulamos toda la funcionalidad en una clase
-para mejor organización y reutilización
-*/
 class HeroSlider {
-    
-    /* 
-
-    MÓDULO 2: CONSTRUCTOR
-
-    Inicializa las propiedades y elementos del DOM
-    */
-    constructor() {
-        // Elementos del DOM
-        this.slides = document.querySelectorAll('.slide');
-        this.dots = document.querySelectorAll('.slider-dot');
-        this.prevBtn = document.querySelector('.prev');
-        this.nextBtn = document.querySelector('.next');
-        this.progressBar = document.querySelector('.progress-bar');
-        this.sliderContainer = document.querySelector('.hero-slider');
-        
-        // Estado del slider
-        this.currentSlide = 0;
-        this.slideInterval = null;
-        this.progressInterval = null;
-        this.isPlaying = true;
-        this.progress = 0;
-        
-        // Configuración (puedes modificar estos valores)
+    constructor(config = {}) {
+        // Configuración por defecto
         this.config = {
-            slideDuration: 5000,      // 5 segundos por slide
-            transitionTime: 800,       // 0.8 segundos de transición
-            autoplay: true,            // Activar autoplay
-            pauseOnHover: true,        // Pausar al hacer hover
-            keyboardNavigation: true    // Navegación por teclado
+            selector: '.hero-slider',
+            autoplay: true,
+            autoplaySpeed: 5000,
+            transitionSpeed: 500,
+            pauseOnHover: true,
+            progressBar: true,
+            keyboardNav: true,
+            ...config
         };
-        
-        // Inicializar el slider
-        this.init();
-    }
-    
-    /* 
-    ============================================
-    MÓDULO 3: INICIALIZACIÓN
-    ============================================
-    Configura todos los event listeners y arranca el slider
-    */
-    init() {
-        this.validateElements();      // Verificamos que existan los elementos
-        
-        // Configurar event listeners
-        this.setupEventListeners();
-        
-        // Iniciar autoplay si está activado
-        if (this.config.autoplay) {
-            this.startAutoplay();
-            this.startProgressBar();
-        }
-        
-        // Aplicar ARIA labels para accesibilidad
-        this.setupAriaLabels();
-        
-        console.log('✅ Slider inicializado correctamente');
-    }
-    
-    /* 
-    ============================================
-    MÓDULO 4: VALIDACIÓN DE ELEMENTOS
-    ============================================
-    Verifica que todos los elementos necesarios existan
-    */
-    validateElements() {
-        if (!this.slides.length) {
-            console.error('❌ No se encontraron slides');
+
+        // Elementos del DOM
+        this.slider = document.querySelector(this.config.selector);
+        if (!this.slider) {
+            console.error('❌ No se encontró el slider');
             return;
         }
-        
-        if (!this.dots.length) {
-            console.warn('⚠️ No se encontraron dots de navegación');
+
+        this.wrapper = this.slider.querySelector('.slider-wrapper');
+        this.slides = this.slider.querySelectorAll('.slide');
+        this.prevBtn = this.slider.querySelector('.slider-arrow.prev');
+        this.nextBtn = this.slider.querySelector('.slider-arrow.next');
+        this.dots = this.slider.querySelectorAll('.slider-dot');
+        this.progressBar = this.slider.querySelector('.progress-bar');
+
+        // Estado
+        this.currentIndex = 0;
+        this.totalSlides = this.slides.length;
+        this.autoplayInterval = null;
+        this.isTransitioning = false;
+        this.progressWidth = 0;
+        this.progressInterval = null;
+
+        // Inicializar
+        this.init();
+    }
+
+    init() {
+        if (this.totalSlides === 0) {
+            console.warn('⚠️ No hay slides para mostrar');
+            return;
         }
-        
-        if (!this.prevBtn || !this.nextBtn) {
-            console.warn('⚠️ No se encontraron botones de navegación');
+
+        console.log('✅ Slider inicializado correctamente');
+        console.log(`📊 Total slides: ${this.totalSlides}`);
+
+        // Mostrar primer slide
+        this.showSlide(0);
+
+        // Configurar eventos
+        this.setupEventListeners();
+
+        // Iniciar autoplay
+        if (this.config.autoplay) {
+            this.startAutoplay();
+        }
+
+        // Iniciar barra de progreso
+        if (this.config.progressBar && this.progressBar) {
+            this.startProgressBar();
+        }
+
+        // Pausar en hover
+        if (this.config.pauseOnHover) {
+            this.setupHoverEvents();
         }
     }
-    
-    /* 
-    ============================================
-    MÓDULO 5: CONFIGURACIÓN DE EVENTOS
-    ============================================
-    Añade todos los event listeners necesarios
-    */
-    setupEventListeners() {
-        // Eventos para botones de navegación
-        if (this.prevBtn) {
-            this.prevBtn.addEventListener('click', () => this.prevSlide());
-        }
+
+    showSlide(index) {
+        if (this.isTransitioning) return;
         
-        if (this.nextBtn) {
-            this.nextBtn.addEventListener('click', () => this.nextSlide());
-        }
-        
-        // Eventos para dots
-        this.dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => this.goToSlide(index));
+        // Validar índice
+        if (index < 0) index = this.totalSlides - 1;
+        if (index >= this.totalSlides) index = 0;
+
+        this.isTransitioning = true;
+
+        // Actualizar slides
+        this.slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
         });
-        
-        // Evento de hover (pausar/reanudar)
-        if (this.config.pauseOnHover && this.sliderContainer) {
-            this.sliderContainer.addEventListener('mouseenter', () => this.pauseSlider());
-            this.sliderContainer.addEventListener('mouseleave', () => this.playSlider());
-        }
-        
-        // Navegación por teclado
-        if (this.config.keyboardNavigation) {
-            document.addEventListener('keydown', (e) => this.handleKeyboard(e));
-        }
-        
-        // Evento de resize para mantener proporciones
-        window.addEventListener('resize', () => this.handleResize());
-    }
-    
-    /* 
-    ============================================
-    MÓDULO 6: ACCESIBILIDAD (ARIA)
-    ============================================
-    Mejora la accesibilidad para lectores de pantalla
-    */
-    setupAriaLabels() {
-        // Marcar el contenedor principal
-        this.sliderContainer.setAttribute('aria-roledescription', 'carrusel');
-        
-        // Configurar cada slide
-        this.slides.forEach((slide, index) => {
-            slide.setAttribute('aria-roledescription', 'slide');
-            slide.setAttribute('aria-label', `${index + 1} de ${this.slides.length}`);
+
+        // Actualizar dots
+        this.dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
         });
-    }
-    
-    /* 
 
-    MÓDULO 7: NAVEGACIÓN POR TECLADO
-
-    Maneja las flechas del teclado
-    */
-    handleKeyboard(e) {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            this.prevSlide();
-        }
+        this.currentIndex = index;
         
-        if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            this.nextSlide();
+        console.log(`📸 Slide: ${this.currentIndex + 1} → ${index + 1} de ${this.totalSlides}`);
+
+        // Resetear transición después de la animación
+        setTimeout(() => {
+            this.isTransitioning = false;
+        }, this.config.transitionSpeed);
+
+        // Reiniciar barra de progreso
+        if (this.config.progressBar && this.progressBar) {
+            this.resetProgressBar();
         }
-    }
-    
-/* 
 
-MÓDULO 8: MOSTRAR SLIDE ESPECÍFICA - VERSIÓN OPTIMIZADA
+        // ✅ NUEVO: Reiniciar autoplay
+        this.restartAutoplay();
+    }
 
-Muestra la slide correspondiente al índice
-CON EFECTO CIRCULAR Y BARRA DE PROGRESO OPTIMIZADA
-*/
-showSlide(index) {
-    const previousIndex = this.currentSlide; 
-    
-    // Validación de índice circular
-    if (index < 0) {
-        index = this.slides.length - 1;
-        console.log('↺ Volviendo a la última slide');
-    } else if (index >= this.slides.length) {
-        index = 0;
-        console.log('↻ Volviendo al inicio');
-    }
-    
-    // Validación adicional de seguridad
-    if (index < 0 || index >= this.slides.length) {
-        console.error('❌ Índice de slide inválido:', index);
-        return;
-    }
-    
-    // Solo proceder si el índice es diferente al actual
-    if (previousIndex === index) {
-        console.log('⏸️ Ya estamos en esta slide');
-        return;
-    }
-    
-    // DETENER LA BARRA DE PROGRESO ANTES DE CAMBIAR
-    this.stopProgressBar();
-    
-    // Remover clase active de todas las slides
-    this.slides.forEach(slide => {
-        slide.classList.remove('active');
-        slide.setAttribute('aria-hidden', 'true');
-    });
-    
-    // Remover clase active de todos los dots
-    this.dots.forEach(dot => {
-        dot.classList.remove('active');
-        dot.setAttribute('aria-selected', 'false');
-    });
-    
-    // Activar slide actual
-    this.slides[index].classList.add('active');
-    this.slides[index].setAttribute('aria-hidden', 'false');
-    
-    // Activar dot actual (con verificación de existencia)
-    if (this.dots && this.dots[index]) {
-        this.dots[index].classList.add('active');
-        this.dots[index].setAttribute('aria-selected', 'true');
-    }
-    
-    // Actualizar índice actual
-    this.currentSlide = index;
-    
-    // Mostrar información de navegación (útil para debugging)
-    console.log(`📸 Slide: ${previousIndex + 1} → ${index + 1} de ${this.slides.length}`);
-    
-    // Disparar evento personalizado
-    this.dispatchSlideChangeEvent(index);
-    
-    // REINICIAR BARRA DE PROGRESO Y REANUDAR SOLO SI ESTÁ REPRODUCIENDO
-    this.resetProgress();
-    
-    // REINICIAR EL INTERVALO DE AUTOPLAY PARA MANTENER SINCRONIZACIÓN
-    if (this.isPlaying && this.config.autoplay) {
-        this.restartAutoplay(); // Necesitamos este nuevo método
-    }
-}
-    
-    /* 
-
-    MÓDULO 9: NAVEGACIÓN
-
-    Métodos para moverse entre slides
-    */
-    nextSlide() {
-        this.showSlide(this.currentSlide + 1);
-    }
-    
-    prevSlide() {
-        this.showSlide(this.currentSlide - 1);
-    }
-    
-    goToSlide(index) {
-        if (index >= 0 && index < this.slides.length) {
-            this.showSlide(index);
-        }
-    }
-    
-    /* 
-
-    MÓDULO 10: EVENTO PERSONALIZADO
-
-    Permite que otros scripts escuchen cambios en el slider
-    */
-    dispatchSlideChangeEvent(index) {
-        const event = new CustomEvent('slideChange', {
-            detail: {
-                currentSlide: index,
-                totalSlides: this.slides.length
-            }
-        });
-        this.sliderContainer.dispatchEvent(event);
-    }
-    
-    /* 
-
-    MÓDULO 11: CONTROL DE AUTOPLAY
- 
-    Inicia, pausa y reanuda la reproducción automática
-    */
-    startAutoplay() {
-        this.stopAutoplay();
-        
-        this.slideInterval = setInterval(() => {
-            this.nextSlide();
-        }, this.config.slideDuration);
-    }
-    
-    stopAutoplay() {
-        if (this.slideInterval) {
-            clearInterval(this.slideInterval);
-            this.slideInterval = null;
-        }
-    }
-    
-    pauseSlider() {
-        if (this.isPlaying) {
-            this.isPlaying = false;
+    // ✅ NUEVO MÉTODO: restartAutoplay
+    restartAutoplay() {
+        if (this.config.autoplay) {
             this.stopAutoplay();
-            this.stopProgressBar();
-            this.sliderContainer.classList.add('paused');
+            this.startAutoplay();
         }
     }
-    
-    playSlider() {
-        if (!this.isPlaying) {
-            this.isPlaying = true;
-            if (this.config.autoplay) {
-                this.startAutoplay();
-                this.startProgressBar();
-            }
-            this.sliderContainer.classList.remove('paused');
+
+    nextSlide() {
+        if (this.isTransitioning) return;
+        this.showSlide(this.currentIndex + 1);
+        console.log(`📸 Slide cambiada a: ${this.currentIndex + 1}/${this.totalSlides}`);
+    }
+
+    prevSlide() {
+        if (this.isTransitioning) return;
+        this.showSlide(this.currentIndex - 1);
+        console.log(`📸 Slide cambiada a: ${this.currentIndex + 1}/${this.totalSlides}`);
+    }
+
+    startAutoplay() {
+        if (!this.config.autoplay) return;
+        
+        this.stopAutoplay();
+        this.autoplayInterval = setInterval(() => {
+            this.nextSlide();
+        }, this.config.autoplaySpeed);
+        
+        console.log(`▶️ Autoplay iniciado (${this.config.autoplaySpeed}ms)`);
+    }
+
+    stopAutoplay() {
+        if (this.autoplayInterval) {
+            clearInterval(this.autoplayInterval);
+            this.autoplayInterval = null;
+            console.log('⏸️ Autoplay detenido');
         }
     }
-    
-    /* 
 
-    MÓDULO 12: BARRA DE PROGRESO
-
-    Controla la animación de la barra de progreso
-    */
     startProgressBar() {
-        this.stopProgressBar();
-        this.progress = 0;
+        if (!this.progressBar) return;
+
+        this.progressWidth = 0;
+        this.progressBar.style.width = '0%';
         
-        const incrementStep = 100 / (this.config.slideDuration / 100);
-        
+        const step = 100 / (this.config.autoplaySpeed / 100); // Incremento cada 100ms
+
         this.progressInterval = setInterval(() => {
-            if (this.progress < 100) {
-                this.progress = Math.min(this.progress + incrementStep, 100);
-                this.updateProgressBar();
+            if (!this.config.autoplay) return;
+            
+            this.progressWidth += step;
+            if (this.progressWidth >= 100) {
+                this.progressWidth = 0;
             }
+            this.progressBar.style.width = `${this.progressWidth}%`;
         }, 100);
     }
-    
-    stopProgressBar() {
+
+    resetProgressBar() {
         if (this.progressInterval) {
             clearInterval(this.progressInterval);
             this.progressInterval = null;
         }
-    }
-    
-    resetProgress() {
-        this.progress = 0;
-        this.updateProgressBar();
-        this.stopProgressBar();
-        if (this.isPlaying && this.config.autoplay) {
+        this.progressWidth = 0;
+        if (this.progressBar) {
+            this.progressBar.style.width = '0%';
+        }
+        if (this.config.autoplay && this.config.progressBar) {
             this.startProgressBar();
         }
     }
-    
-    updateProgressBar() {
-        if (this.progressBar) {
-            this.progressBar.style.width = `${this.progress}%`;
-            this.progressBar.setAttribute('aria-valuenow', this.progress);
+
+    setupEventListeners() {
+        // Botones prev/next
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => {
+                this.prevSlide();
+                this.restartAutoplay(); // Reiniciar autoplay al hacer clic
+            });
+        }
+
+        if (this.nextBtn) {
+            this.nextBtn.addEventListener('click', () => {
+                this.nextSlide();
+                this.restartAutoplay(); // Reiniciar autoplay al hacer clic
+            });
+        }
+
+        // Dots
+        this.dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                if (this.currentIndex !== index) {
+                    this.showSlide(index);
+                    this.restartAutoplay(); // Reiniciar autoplay al hacer clic
+                }
+            });
+        });
+
+        // Teclado
+        if (this.config.keyboardNav) {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    this.prevSlide();
+                    this.restartAutoplay();
+                } else if (e.key === 'ArrowRight') {
+                    this.nextSlide();
+                    this.restartAutoplay();
+                }
+            });
         }
     }
-    
-    /* 
 
-    MÓDULO 13: RESIZE HANDLER
+    setupHoverEvents() {
+        this.slider.addEventListener('mouseenter', () => {
+            this.stopAutoplay();
+            if (this.progressInterval) {
+                clearInterval(this.progressInterval);
+            }
+        });
 
-    Maneja cambios en el tamaño de la ventana
-    */
-    handleResize() {
-        // Podemos añadir lógica específica si es necesaria
-        // Por ejemplo, recargar imágenes de alta resolución
+        this.slider.addEventListener('mouseleave', () => {
+            if (this.config.autoplay) {
+                this.startAutoplay();
+                if (this.config.progressBar) {
+                    this.startProgressBar();
+                }
+            }
+        });
     }
-    
-    /* 
 
-    MÓDULO 14: MÉTODOS PÚBLICOS
-
-    API pública para controlar el slider desde fuera
-    */
-    goToFirst() {
-        this.goToSlide(0);
-    }
-    
-    goToLast() {
-        this.goToSlide(this.slides.length - 1);
-    }
-    
-    toggleAutoplay() {
-        this.config.autoplay = !this.config.autoplay;
-        if (this.config.autoplay) {
-            this.playSlider();
-        } else {
-            this.pauseSlider();
-        }
-    }
-    
-    getCurrentSlide() {
-        return this.currentSlide;
-    }
-    
-    /* 
-
-    MÓDULO 15: DESTRUCTOR
-
-    Limpia recursos cuando el slider se destruye
-    */
+    // Método para destruir el slider (limpiar recursos)
     destroy() {
         this.stopAutoplay();
-        this.stopProgressBar();
-        
-        // Remover event listeners
-        window.removeEventListener('resize', this.handleResize);
-        
-        console.log('🧹 Slider destruido y recursos liberados');
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+        }
+        // Remover event listeners si es necesario
+        console.log('🗑️ Slider destruido');
     }
 }
 
-/* 
-
-MÓDULO 16: INICIALIZACIÓN
-
-Esperamos a que el DOM esté listo y creamos el slider
-*/
+// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        // Crear instancia del slider
-        const slider = new HeroSlider();
+    // Buscar sliders en la página
+    const sliders = document.querySelectorAll('.hero-slider');
+    
+    if (sliders.length === 0) {
+        console.warn('⚠️ No se encontraron sliders en la página');
+        return;
+    }
+
+    // Inicializar cada slider encontrado
+    sliders.forEach((slider, index) => {
+        console.log(`🎯 Inicializando slider ${index + 1}/${sliders.length}`);
         
-        // Exponer slider globalmente para debugging (opcional)
-        window.slider = slider;
+        // Puedes personalizar la configuración por slider usando data attributes
+        const autoplaySpeed = slider.dataset.autoplaySpeed || 5000;
         
-        // Ejemplo de cómo escuchar cambios en el slider
-        document.querySelector('.hero-slider').addEventListener('slideChange', (e) => {
-            console.log(`📸 Slide cambiada a: ${e.detail.currentSlide + 1}/${e.detail.totalSlides}`);
+        new HeroSlider({
+            selector: `.hero-slider:nth-of-type(${index + 1})`,
+            autoplay: true,
+            autoplaySpeed: parseInt(autoplaySpeed),
+            pauseOnHover: true,
+            progressBar: true,
+            keyboardNav: true
         });
-        
-    } catch (error) {
-        console.error('❌ Error al inicializar el slider:', error);
-    }
+    });
 });
 
-/* 
-
-MÓDULO 17: PREVENCIÓN DE MEMORY LEAKS
-
-Limpiamos todo si la página se descarga
-*/
-window.addEventListener('beforeunload', () => {
-    if (window.slider) {
-        window.slider.destroy();
-    }
-});
+// Para uso en desarrollo (opcional)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = HeroSlider;
+}
