@@ -1,0 +1,19 @@
+<header class="header">
+    <nav class="nav-container">
+        <div class="brand">
+            <a class="logo">
+                <img src="resources/logo.png" alt="Electricista profesional">
+            </a>
+        </div>
+        <button class="nav-toggle" aria-label="Abrir menu">
+            <span class="hamburger"></span>
+        </button>
+        <ul class="nav-menu" id="nav-menu">
+            <li><a href="/" class="nav-link <%= pagina === 'inicio' ? 'class="active"' : '' %>">Inicio</a></li>
+            <li><a href="/services" class="nav-link <%= pagina === 'servicios' ? 'class="active"' : '' %>">Servicios</a></li>
+            <li><a href="/about" class="nav-link <%= pagina === 'about' ? 'class="active"' : '' %>">Sobre-mi</a></li>
+            <li><a href="/testimonios" class="nav-link <%= pagina === 'testimonios' ? 'class="active"' : '' %>">Testimonios</a></li>
+            <li><a href="/contact" class="nav-link <%= pagina === 'contact' ? 'class="active"' : '' %>">Contacto</a></li>
+        </ul>
+    </nav>
+</header>

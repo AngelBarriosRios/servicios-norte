@@ -1,0 +1,106 @@
+<%- include('partials/head')%>
+<%- include('partials/header')%>
+
+<main class="contact-page">
+    <section class="contact-container">
+        <h1>Contacto</h1>
+        <p>¿Tienes alguna pregunta? ¡Envíame un mensaje!</p>
+        
+        <!-- Mostrar mensajes de éxito si existen -->
+        <% if (typeof mensajeExito !== 'undefined' && mensajeExito) { %>
+            <div class="alert alert-success">
+                <%= mensajeExito %>
+            </div>
+        <% } %>
+        
+        <!-- Mostrar errores si existen -->
+        <% if (typeof errores !== 'undefined' && errores.length > 0) { %>
+            <div class="alert alert-error">
+                <ul>
+                    <% errores.forEach(error => { %>
+                        <li><%= error %></li>
+                    <% }) %>
+                </ul>
+            </div>
+        <% } %>
+
+        <form action="/enviar-contacto" method="post" class="contact-form">
+            <div class="form-group">
+                <label for="nombre">Nombre completo</label>
+                <input
+                    type="text"
+                    id="nombre"
+                    name="nombre"
+                    placeholder="Ej: Juan Pérez"
+                    value="<%= typeof datos !== 'undefined' ? datos.nombre : '' %>"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="ejemplo@correo.com"
+                    value="<%= typeof datos !== 'undefined' ? datos.email : '' %>"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input
+                    type="tel"
+                    id="telefono"
+                    name="telefono"
+                    placeholder="+56 9 1234 5678"
+                    value="<%= typeof datos !== 'undefined' ? datos.telefono : '' %>"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="asunto">Asunto</label>
+                <select name="asunto" id="asunto" required>
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="consulta" <%= typeof datos !== 'undefined' && datos.asunto === 'consulta' ? 'selected' : '' %>>Consulta general</option>
+                    <option value="presupuesto" <%= typeof datos !== 'undefined' && datos.asunto === 'presupuesto' ? 'selected' : '' %>>Solicitar presupuesto</option>
+                    <option value="urgencia" <%= typeof datos !== 'undefined' && datos.asunto === 'urgencia' ? 'selected' : '' %>>Urgencia eléctrica</option>
+                    <option value="otro" <%= typeof datos !== 'undefined' && datos.asunto === 'otro' ? 'selected' : '' %>>Otro</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="mensaje">Mensaje</label>
+                <textarea
+                    id="mensaje"
+                    name="mensaje"
+                    rows="5"
+                    placeholder="Escribe tu mensaje aquí"
+                    required
+                ><%= typeof datos !== 'undefined' ? datos.mensaje : '' %></textarea>
+            </div>
+            
+            <div class="form-group checkbox">
+                <input
+                    type="checkbox"
+                    id="privacidad"
+                    name="privacidad"
+                    required
+                    <%= typeof datos !== 'undefined' && datos.privacidad ? 'checked' : '' %>
+                >
+                <label for="privacidad">
+                    Acepto la <a href="/politica">política de privacidad</a>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Enviar mensaje
+            </button>
+        </form>
+    </section>
+</main>
+
+<%- include('partials/footer')%>

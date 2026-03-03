@@ -1,0 +1,57 @@
+<%- include('partials/head') %>
+<%- include('partials/header') %>
+
+<!-- Seccion del carrusel -->
+<section class="hero-slider" aria-label="carrusel de imagenes">
+    <div class="slider-wrapper">
+        <!-- img 1 -->
+        <article class="slide active" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2069&q=80');">
+            <div class="slide-content">
+                <h2>Innovación y tecnología</h2>
+                <p>Transformando el futuro digital con soluciones de vanguardia</p>
+            </div>
+        </article>
+        <!-- img 2 -->
+        <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1555421689-3f034debb7a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="slide-content">
+                <h2>Innovación y tecnología</h2>
+                <p>Transformando el futuro digital con soluciones de vanguardia</p>
+            </div>
+        </article>
+        <!-- img 3 -->
+        <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');">
+            <div class="slide-content">
+                <h2>Innovación y tecnología</h2>
+                <p>Transformando el futuro digital con soluciones de vanguardia</p>
+            </div>
+        </article>
+        <!-- img 4 -->
+        <article class="slide" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2015&q=80');">
+            <div class="slide-content">
+                <h2>Innovación y tecnología</h2>
+                <p>Transformando el futuro digital con soluciones de vanguardia</p>
+            </div>
+        </article>
+    </div>
+
+    <!-- Controles de navegacion -->
+    <button class="slider-arrow prev" aria-label="slide anterior">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slider-arrow next" aria-label="siguiente slide">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+    
+    <!-- Indicadores (Dots) -->
+    <div class="slider-nav" role="tablist">
+        <button class="slider-dot active" role="tab" aria-label="Ir a slide 1"></button>
+        <button class="slider-dot" role="tab" aria-label="Ir a slide 2"></button>
+        <button class="slider-dot" role="tab" aria-label="Ir a slide 3"></button>
+        <button class="slider-dot" role="tab" aria-label="Ir a slide 4"></button>
+    </div>
+
+    <!-- barra de progreso -->
+    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+</section>
+
+<%- include('partials/footer') %>

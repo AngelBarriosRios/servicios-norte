@@ -1,0 +1,477 @@
+/* ============================================
+   MODALES PARA SERVICIOS
+   ============================================ */
+
+/* Overlay (fondo oscuro) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.activo {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Contenedor del modal */
+.servicio-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.servicio-modal.activo {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Contenido del modal */
+.modal-contenido {
+    background: white;
+    border-radius: 20px;
+    max-width: 1200px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    animation: modalEntrada 0.4s ease forwards;
+}
+
+@keyframes modalEntrada {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Botón cerrar */
+.modal-cerrar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #333;
+    z-index: 10;
+}
+
+.modal-cerrar:hover {
+    background: #dc3545;
+    color: white;
+    transform: rotate(90deg);
+}
+
+.modal-cerrar i {
+    pointer-events: none;
+}
+
+/* Body del modal */
+.modal-body {
+    padding: 40px;
+}
+
+/* Grid principal */
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+/* ============================================
+   SECCIÓN DE IMÁGENES
+   ============================================ */
+.modal-imagenes {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modal-imagen-principal {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    background: #f5f5f5;
+}
+
+.modal-imagen-item {
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-imagen-item.activa {
+    display: block;
+}
+
+.modal-imagen-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.modal-imagen-item:hover img {
+    transform: scale(1.05);
+}
+
+.modal-miniaturas {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.modal-miniatura {
+    flex: 0 0 80px;
+    height: 60px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    transition: all 0.3s ease;
+}
+
+.modal-miniatura:hover {
+    border-color: var(--secondary, #f5b342);
+    transform: translateY(-2px);
+}
+
+.modal-miniatura img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ============================================
+   SECCIÓN DE INFORMACIÓN
+   ============================================ */
+.modal-info {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.modal-icono {
+    background: var(--secondary, #f5b342);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.modal-icono i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.modal-info h2 {
+    font-size: 2.2rem;
+    color: var(--primary, #0a4b7a);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.modal-destacado {
+    background: linear-gradient(135deg, var(--primary, #0a4b7a), #063357);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.modal-precio {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.modal-iva {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.modal-descripcion {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+}
+
+/* Características */
+.modal-caracteristicas {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.modal-caracteristicas h3 {
+    color: var(--primary, #0a4b7a);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.modal-caracteristicas ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.modal-caracteristicas li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #555;
+}
+
+.modal-caracteristicas li i {
+    color: #28a745;
+    font-size: 1rem;
+}
+
+/* Preguntas frecuentes */
+.modal-preguntas {
+    padding: 25px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+}
+
+.modal-preguntas h3 {
+    color: var(--primary, #0a4b7a);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.modal-pregunta {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-pregunta:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.modal-pregunta h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.modal-pregunta h4 i {
+    color: var(--secondary, #f5b342);
+}
+
+.modal-pregunta p {
+    color: #666;
+    margin-left: 25px;
+    font-size: 0.95rem;
+}
+
+/* Botones de acción */
+.modal-acciones {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.btn-solicitar {
+    flex: 2;
+    background: var(--primary, #0a4b7a);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-solicitar:hover {
+    background: #063357;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(10, 75, 122, 0.3);
+}
+
+.btn-llamar {
+    flex: 1;
+    background: var(--secondary, #f5b342);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-llamar:hover {
+    background: #e09e2b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(245, 179, 66, 0.3);
+}
+
+.modal-nota {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.modal-nota i {
+    color: var(--secondary, #f5b342);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+    .modal-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .modal-body {
+        padding: 30px;
+    }
+    
+    .modal-info h2 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-body {
+        padding: 25px;
+    }
+    
+    .modal-destacado {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-caracteristicas ul {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-acciones {
+        flex-direction: column;
+    }
+    
+    .btn-solicitar, .btn-llamar {
+        width: 100%;
+    }
+    
+    .modal-miniaturas {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .modal-info h2 {
+        font-size: 1.5rem;
+    }
+    
+    .modal-precio {
+        font-size: 2rem;
+    }
+    
+    .modal-icono {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .modal-icono i {
+        font-size: 1.8rem;
+    }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .modal-contenido,
+    .modal-cerrar,
+    .modal-miniatura,
+    .btn-solicitar,
+    .btn-llamar {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* Estado para body sin scroll */
+body.modal-abierto {
+    overflow: hidden;
+}
